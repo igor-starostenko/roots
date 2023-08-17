@@ -21,6 +21,10 @@ grandchild6
 
 standalone1
 
+standalonechild1
+standalonesubchild1
+standalonesubchild2
+
 grandchild1
 grandchild6
 subgrandchild1

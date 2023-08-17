@@ -92,10 +92,17 @@ func findParentNodes(nodesMap map[string][]string) []string {
 	return parentNodes
 }
 
-func generatePrefix(depth int, isLast bool) string {
+func findTopNodes(parent string, nodesMap map[string][]string) []string {
+	if parent == "" {
+		return findParentNodes(nodesMap)
+	}
+	return nodesMap[parent]
+}
+
+func generatePrefix(depth int, isLast []bool) string {
 	prefix := ""
 	for i := 0; i < depth; i++ {
-		if isLast && i == depth-1 {
+		if isLast[i] {
 			prefix += "    "
 		} else {
 			prefix += "│   "
@@ -111,34 +118,29 @@ func getBranch(index int, size int) string {
 	return "├──"
 }
 
-func filterChildNodes(parent string, nodes map[string][]string) map[string][]string {
-	result := make(map[string][]string)
-	for _, child := range nodes[parent] {
-		result[child] = nodes[child]
-	}
-	return result
-}
-
-func visualizeNode(depth int, nodes map[string][]string, isLast bool) {
-	parentNodes := findParentNodes(nodes)
+func visualizeParents(depth int, parentNodes []string, nodes map[string][]string, isLast []bool) {
 	if len(parentNodes) == 0 {
 		return
 	}
 	currentIndex := 0
 	for _, parent := range parentNodes {
+		isLast := append(isLast, currentIndex == len(parentNodes)-1)
 		prefix := generatePrefix(depth, isLast)
 		branch := getBranch(currentIndex, len(parentNodes))
 		fmt.Printf("%s%s %s\n", prefix, branch, parent)
-		children := filterChildNodes(parent, nodes)
-		isLast := currentIndex == len(parentNodes)-1
-		visualizeNode(depth+1, children, isLast)
+		nextParents := findTopNodes(parent, nodes)
+		delete(nodes, parent)
+		visualizeParents(depth+1, nextParents, nodes, isLast)
 		currentIndex++
 	}
 }
 
 func visualizeGraph(nodes map[string][]string) {
 	depth := 0
+	var parent string
+	parentNodes := findTopNodes(parent, nodes)
+	isLast := []bool{}
 	fmt.Println(".")
 
-	visualizeNode(depth, nodes, false)
+	visualizeParents(depth, parentNodes, nodes, isLast)
 }
