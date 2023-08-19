@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+// Node represents an element in the graph
+type Node struct {
+	name     string
+	children []string
+}
+
 func main() {
 	filename := "example.txt" // Change this to the name of the file you want to read
 
@@ -15,13 +21,8 @@ func main() {
 		log.Fatal(err)
 	}
 	lines := splitStringByNewline(string(content))
-	nodes := processLinesSlice(lines)
-	nodesMap := convertNodesToMap(nodes)
-	visualizeGraph(nodesMap)
-
-	// for key, values := range nodesMap {
-	// 	fmt.Printf("Key: %s, Values: %v\n", key, values)
-	// }
+	nodes := convertSliceToNodes(processLinesSlice(lines))
+	visualizeGraph(nodes)
 }
 
 func readFile(filename string) ([]byte, error) {
@@ -59,44 +60,44 @@ func processLinesSlice(input []string) [][]string {
 	return result
 }
 
-func convertNodesToMap(input [][]string) map[string][]string {
-	result := make(map[string][]string)
-
-	for _, group := range input {
-		if len(group) > 0 {
-			key := group[0]
-			values := group[1:]
-			result[key] = values
-		}
+func convertSliceToNodes(input [][]string) []Node {
+	var result []Node
+	for _, nodes := range input {
+		result = append(result, Node{name: nodes[0], children: nodes[1:]})
 	}
 
 	return result
 }
 
-func findParentNodes(nodesMap map[string][]string) []string {
+func findParentNodes(nodes []Node) []string {
 	childNodes := make(map[string]bool)
 
-	for _, children := range nodesMap {
-		for _, node := range children {
-			childNodes[node] = true
+	for _, node := range nodes {
+		for _, name := range node.children {
+			childNodes[name] = true
 		}
 	}
 
 	parentNodes := []string{}
-	for parent := range nodesMap {
-		if !childNodes[parent] {
-			parentNodes = append(parentNodes, parent)
+	for _, parent := range nodes {
+		if !childNodes[parent.name] {
+			parentNodes = append(parentNodes, parent.name)
 		}
 	}
 
 	return parentNodes
 }
 
-func findTopNodes(parent string, nodesMap map[string][]string) []string {
+func findTopNodes(parent string, nodes []Node) []string {
 	if parent == "" {
-		return findParentNodes(nodesMap)
+		return findParentNodes(nodes)
 	}
-	return nodesMap[parent]
+	for _, node := range nodes {
+		if node.name == parent {
+			return node.children
+		}
+	}
+	return nil
 }
 
 func generatePrefix(depth int, isLast []bool) string {
@@ -118,7 +119,17 @@ func getBranch(index int, size int) string {
 	return "├──"
 }
 
-func visualizeParents(depth int, parentNodes []string, nodes map[string][]string, isLast []bool) {
+func removeNode(nodes []Node, parent string) []Node {
+	filteredNodes := []Node{}
+	for _, node := range nodes {
+		if parent != node.name {
+			filteredNodes = append(filteredNodes, node)
+		}
+	}
+	return filteredNodes
+}
+
+func visualizeParents(depth int, parentNodes []string, nodes []Node, isLast []bool) {
 	if len(parentNodes) == 0 {
 		return
 	}
@@ -129,13 +140,13 @@ func visualizeParents(depth int, parentNodes []string, nodes map[string][]string
 		branch := getBranch(currentIndex, len(parentNodes))
 		fmt.Printf("%s%s %s\n", prefix, branch, parent)
 		nextParents := findTopNodes(parent, nodes)
-		delete(nodes, parent)
-		visualizeParents(depth+1, nextParents, nodes, isLast)
+		nextNodes := removeNode(nodes, parent)
+		visualizeParents(depth+1, nextParents, nextNodes, isLast)
 		currentIndex++
 	}
 }
 
-func visualizeGraph(nodes map[string][]string) {
+func visualizeGraph(nodes []Node) {
 	depth := 0
 	var parent string
 	parentNodes := findTopNodes(parent, nodes)
