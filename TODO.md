@@ -2,8 +2,8 @@
 
 [x] - fix subgrandchildren
 [x] - fix root level bars
-[ ] - ensure original sorting
-[ ] - use pointers
+[x] - ensure original sorting
+[x] - use pointers
 [ ] - add cli options
 [ ] - add option to repeat nodes
 [ ] - add csv input format
