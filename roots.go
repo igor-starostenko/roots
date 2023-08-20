@@ -89,22 +89,23 @@ func findParentNodes(nodes *[]Node) *[]string {
 	return &parentNodes
 }
 
-func findTopNodes(parent string, nodes *[]Node) []string {
+func findTopNodes(nodes *[]Node, parent string) *[]string {
 	if parent == "" {
-		return *findParentNodes(nodes)
+		return findParentNodes(nodes)
 	}
 	for _, node := range *nodes {
 		if node.name == parent {
-			return node.children
+			return &(node.children)
 		}
 	}
-	return nil
+	return &[]string{}
 }
 
-func generatePrefix(depth int, isLast []bool) string {
+func generatePrefix(isLastNodes *[]bool) string {
+	depth := len(*isLastNodes) - 1
 	prefix := ""
 	for i := 0; i < depth; i++ {
-		if isLast[i] {
+		if (*isLastNodes)[i] {
 			prefix += "    "
 		} else {
 			prefix += "│   "
@@ -130,29 +131,28 @@ func removeNode(nodes *[]Node, parent string) *[]Node {
 	return &filteredNodes
 }
 
-func visualizeParents(depth int, parentNodes []string, nodes *[]Node, isLast []bool) {
-	if len(parentNodes) == 0 {
+func visualizeParents(nodes *[]Node, parentNodes *[]string, isLastNodes *[]bool) {
+	if len(*parentNodes) == 0 {
 		return
 	}
 	currentIndex := 0
-	for _, parent := range parentNodes {
-		isLast := append(isLast, currentIndex == len(parentNodes)-1)
-		prefix := generatePrefix(depth, isLast)
-		branch := getBranch(currentIndex, len(parentNodes))
+	for _, parent := range *parentNodes {
+		isLastNodes := append(*isLastNodes, currentIndex == len(*parentNodes)-1)
+		prefix := generatePrefix(&isLastNodes)
+		branch := getBranch(currentIndex, len(*parentNodes))
 		fmt.Printf("%s%s %s\n", prefix, branch, parent)
-		nextParents := findTopNodes(parent, nodes)
+		nextParents := findTopNodes(nodes, parent)
 		nextNodes := removeNode(nodes, parent)
-		visualizeParents(depth+1, nextParents, nextNodes, isLast)
+		visualizeParents(nextNodes, nextParents, &isLastNodes)
 		currentIndex++
 	}
 }
 
 func visualizeGraph(nodes *[]Node) {
-	depth := 0
 	var parent string
-	parentNodes := findTopNodes(parent, nodes)
-	isLast := []bool{}
+	parentNodes := findTopNodes(nodes, parent)
+	isLastNodes := []bool{}
 	fmt.Println(".")
 
-	visualizeParents(depth, parentNodes, nodes, isLast)
+	visualizeParents(nodes, parentNodes, &isLastNodes)
 }
