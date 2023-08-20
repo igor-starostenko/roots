@@ -114,8 +114,8 @@ func generatePrefix(isLastNodes *[]bool) string {
 	return prefix
 }
 
-func getBranch(index int, size int) string {
-	if size == index+1 {
+func getBranch(isLast bool) string {
+	if isLast {
 		return "└──"
 	}
 	return "├──"
@@ -131,20 +131,20 @@ func removeNode(nodes *[]Node, parent string) *[]Node {
 	return &filteredNodes
 }
 
-func visualizeParents(nodes *[]Node, parentNodes *[]string, isLastNodes *[]bool) {
-	if len(*parentNodes) == 0 {
+func visualizeGraphLevel(nodes *[]Node, levelNodeNames *[]string, isLastNodes *[]bool) {
+	if len(*levelNodeNames) == 0 {
 		return
 	}
-	currentIndex := 0
-	for _, parent := range *parentNodes {
-		isLastNodes := append(*isLastNodes, currentIndex == len(*parentNodes)-1)
+	for index, parent := range *levelNodeNames {
+		isLast := index == len(*levelNodeNames)-1
+		isLastNodes := append(*isLastNodes, isLast)
 		prefix := generatePrefix(&isLastNodes)
-		branch := getBranch(currentIndex, len(*parentNodes))
+		branch := getBranch(isLast)
 		fmt.Printf("%s%s %s\n", prefix, branch, parent)
-		nextParents := findTopNodes(nodes, parent)
-		nextNodes := removeNode(nodes, parent)
-		visualizeParents(nextNodes, nextParents, &isLastNodes)
-		currentIndex++
+
+		childrenNodes := findTopNodes(nodes, parent)
+		remainingNodes := removeNode(nodes, parent)
+		visualizeGraphLevel(remainingNodes, childrenNodes, &isLastNodes)
 	}
 }
 
@@ -154,5 +154,5 @@ func visualizeGraph(nodes *[]Node) {
 	isLastNodes := []bool{}
 	fmt.Println(".")
 
-	visualizeParents(nodes, parentNodes, &isLastNodes)
+	visualizeGraphLevel(nodes, parentNodes, &isLastNodes)
 }
