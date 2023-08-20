@@ -132,9 +132,6 @@ func removeNode(nodes *[]Node, parent string) *[]Node {
 }
 
 func visualizeGraphLevel(nodes *[]Node, levelNodeNames *[]string, isLastNodes *[]bool) {
-	if len(*levelNodeNames) == 0 {
-		return
-	}
 	for index, parent := range *levelNodeNames {
 		isLast := index == len(*levelNodeNames)-1
 		isLastNodes := append(*isLastNodes, isLast)
