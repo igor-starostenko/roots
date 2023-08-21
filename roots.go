@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
+	"os"
 	"strings"
 )
 
@@ -14,12 +14,22 @@ type Node struct {
 }
 
 func main() {
-	filename := "example.txt" // Change this to the name of the file you want to read
+	var progname string = os.Args[0]
+	var input []string = os.Args[1:]
 
-	content, err := readFile(filename)
-	if err != nil {
-		log.Fatal(err)
+	flags, usage := parseFlags(progname, input)
+	if len(input) == 0 || strings.HasPrefix(input[0], "-") {
+		usage()
+		os.Exit(0)
 	}
+	if flags.version {
+		stop(version, 0)
+	}
+
+	fileName := input[0]
+	content, err := readFile(fileName)
+	check(err)
+
 	lines := splitStringByNewline(string(*content))
 	nodes := convertSliceToNodes(processLinesSlice(lines))
 	visualizeGraph(nodes)
@@ -70,7 +80,7 @@ func convertSliceToNodes(input *[][]string) *[]Node {
 	return &result
 }
 
-func findParentNodes(nodes *[]Node) *[]string {
+func findRootNodeNames(nodes *[]Node) *[]string {
 	childNodes := make(map[string]bool)
 
 	for _, node := range *nodes {
@@ -89,9 +99,9 @@ func findParentNodes(nodes *[]Node) *[]string {
 	return &parentNodes
 }
 
-func findTopNodes(nodes *[]Node, parent string) *[]string {
+func findChildrenNodeNames(nodes *[]Node, parent string) *[]string {
 	if parent == "" {
-		return findParentNodes(nodes)
+		return findRootNodeNames(nodes)
 	}
 	for _, node := range *nodes {
 		if node.name == parent {
@@ -139,17 +149,17 @@ func visualizeGraphLevel(nodes *[]Node, levelNodeNames *[]string, isLastNodes *[
 		branch := getBranch(isLast)
 		fmt.Printf("%s%s %s\n", prefix, branch, parent)
 
-		childrenNodes := findTopNodes(nodes, parent)
+		childrenNodeNames := findChildrenNodeNames(nodes, parent)
 		remainingNodes := removeNode(nodes, parent)
-		visualizeGraphLevel(remainingNodes, childrenNodes, &isLastNodes)
+		visualizeGraphLevel(remainingNodes, childrenNodeNames, &isLastNodes)
 	}
 }
 
 func visualizeGraph(nodes *[]Node) {
 	var parent string
-	parentNodes := findTopNodes(nodes, parent)
+	rootLevelNodeNames := findChildrenNodeNames(nodes, parent)
 	isLastNodes := []bool{}
 	fmt.Println(".")
 
-	visualizeGraphLevel(nodes, parentNodes, &isLastNodes)
+	visualizeGraphLevel(nodes, rootLevelNodeNames, &isLastNodes)
 }

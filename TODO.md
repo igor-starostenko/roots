@@ -4,7 +4,7 @@
 [x] - fix root level bars
 [x] - ensure original sorting
 [x] - use pointers
-[ ] - add cli options
+[x] - add cli options
 [ ] - add option to repeat nodes
 [ ] - add csv input format
 [ ] - add json input format
