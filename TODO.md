@@ -5,7 +5,8 @@
 [x] - ensure original sorting
 [x] - use pointers
 [x] - add cli options
-[ ] - add option to repeat nodes
+[x] - remove option to repeat nodes
+[ ] - add warning for duplicate parents
 [ ] - add csv input format
 [ ] - add json input format
 [ ] - add yaml input format

@@ -7,13 +7,11 @@ import (
 
 // Flags to parse CLI input
 type Flags struct {
-	repeatNodes bool
-	version     bool
+	version bool
 }
 
 // Define command-line arguments
 func setFlags(flags *flag.FlagSet, f *Flags) {
-	flags.BoolVar(&f.repeatNodes, "r", false, "Repeat nodes. May cause infinite loop. Default: false.")
 	flags.BoolVar(&f.version, "v", false, "Print version info about roots and exit.")
 }
 
