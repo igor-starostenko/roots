@@ -35,4 +35,8 @@ subgrandchild1
 subgrandchild3
 
 subgrandchild1
+testcirculardependency
 grandchild6
+
+subgrandchild1
+testduplicateparent

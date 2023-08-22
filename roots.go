@@ -18,9 +18,13 @@ func main() {
 	var input []string = os.Args[1:]
 
 	flags, usage := parseFlags(progname, input)
-	if len(input) == 0 || strings.HasPrefix(input[0], "-") {
+	if len(input) == 0 {
 		usage()
-		os.Exit(0)
+		stop("", 1)
+	}
+	if flags.help {
+		usage()
+		stop("", 0)
 	}
 	if flags.version {
 		stop(version, 0)

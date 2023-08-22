@@ -7,11 +7,13 @@ import (
 
 // Flags to parse CLI input
 type Flags struct {
+	help    bool
 	version bool
 }
 
 // Define command-line arguments
 func setFlags(flags *flag.FlagSet, f *Flags) {
+	flags.BoolVar(&f.help, "h", false, "Print available CLI options and exit.")
 	flags.BoolVar(&f.version, "v", false, "Print version info about roots and exit.")
 }
 

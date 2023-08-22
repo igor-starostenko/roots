@@ -16,7 +16,7 @@ func warn(message string) {
 }
 
 func stop(message string, code int) {
-	fmt.Fprintf(os.Stderr, message+"\n")
+	warn(message)
 	os.Exit(code)
 }
 
