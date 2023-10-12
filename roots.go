@@ -36,6 +36,7 @@ func main() {
 
 	lines := splitStringByNewline(string(*content))
 	nodes := convertSliceToNodes(processLinesSlice(lines))
+	validateNodes(nodes)
 	visualizeGraph(nodes)
 }
 
@@ -143,6 +144,45 @@ func removeNode(nodes *[]Node, parent string) *[]Node {
 		}
 	}
 	return &filteredNodes
+}
+
+func validateNodes(nodes *[]Node) {
+	warningCount := 0
+	warningCount += checkDuplicateParent(nodes)
+	warningCount += checkDuplicateChild(nodes)
+	if warningCount > 0 {
+		warn(fmt.Sprintf("\nFound %d warning(s).", warningCount))
+	}
+}
+
+func checkDuplicateParent(nodes *[]Node) int {
+	uniqueNodes := []string{}
+	warningCount := 0
+	for _, node := range *nodes {
+		if !contains(uniqueNodes, node.name) {
+			uniqueNodes = append(uniqueNodes, node.name)
+		} else {
+			warn(fmt.Sprintf("Duplicate parent \"%s\".", node.name))
+			warningCount++
+		}
+	}
+	return warningCount
+}
+
+func checkDuplicateChild(nodes *[]Node) int {
+	warningCount := 0
+	for _, node := range *nodes {
+		uniqueChildren := []string{}
+		for _, child := range node.children {
+			if !contains(uniqueChildren, child) {
+				uniqueChildren = append(uniqueChildren, child)
+			} else {
+				warn(fmt.Sprintf("Duplicate child \"%s\" in node \"%s\".", child, node.name))
+				warningCount++
+			}
+		}
+	}
+	return warningCount
 }
 
 func visualizeGraphLevel(nodes *[]Node, levelNodeNames *[]string, isLastNodes *[]bool) {

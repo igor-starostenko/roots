@@ -6,7 +6,7 @@
 [x] - use pointers
 [x] - add cli options
 [x] - remove option to repeat nodes
-[ ] - add warning for duplicate parents
+[x] - add warning for duplicate parents
 [ ] - add csv input format
 [ ] - add json input format
 [ ] - add yaml input format
